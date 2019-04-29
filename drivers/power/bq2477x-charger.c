@@ -51,6 +51,7 @@
 #include <linux/extcon.h>
 #include <linux/regulator/consumer.h>
 #include <linux/sysfs.h>
+#include <linux/of_gpio.h>
 
 #include <../mach-tegra/common.h>
 #include <../mach-tegra/gpio-names.h>
@@ -104,9 +105,15 @@ struct bq2477x_chip {
 	struct regmap	*regmap;
 	struct regmap	*regmap_word;
 	struct mutex	mutex;
+	int	irq;
+	int	charger_detect_gpio;
+	int	charger_detect_gpio_active_low;
+	int	ac_online;
+	int	dac_ichg;
 	int	disable_vbus_12v_boost_gpio;
 	int	dac_v;
 	int	dac_minsv;
+	int	dac_iin;
 	int	suspended;
 	int	wdt_refresh_timeout;
 	struct battery_charger_dev	*bc_dev;
@@ -117,6 +124,7 @@ struct bq2477x_chip {
 	int charger_type_is_usb;
 	int charger_type_is_dock;
 	char *extcon_dock_name;
+	struct kthread_worker	bq_kworker;
 	struct power_supply_extcon *psy_dock_extcon;
 	struct regulator *vbus_reg;	/* regulator for drawing VBUS */
 	int max_charge_ua;
